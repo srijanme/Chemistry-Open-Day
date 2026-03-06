@@ -405,14 +405,14 @@
                 const row = document.createElement('div');
                 row.className = 'f1-row';
                 
-                // Dynamically adjust grid so the Delete button only takes space on the Admin view
+                // Adjust columns based on whether the admin Delete button needs space
                 if(role === 'admin') {
                     row.style.gridTemplateColumns = '50px 1fr 100px 70px 45px 45px 45px';
                 } else {
                     row.style.gridTemplateColumns = '50px 1fr 100px 70px 45px 45px';
                 }
                 
-                // Only render the Delete button if you are the Admin
+                // Render Delete button exclusively for the Admin view
                 let adminDeleteBtn = '';
                 if(role === 'admin') {
                     adminDeleteBtn = `
@@ -450,7 +450,7 @@
             });
         }
 
-        // --- NEW: DELETE ENTRY LOGIC (Admin Only) ---
+        // --- DELETE ENTRY LOGIC (Only fires if Admin clicks it) ---
         window.deleteEntry = function(index, name) {
             if(confirm(`Are you sure you want to delete the run for ${name}?`)) {
                 masterRacers.splice(index, 1);
