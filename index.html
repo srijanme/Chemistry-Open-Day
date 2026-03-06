@@ -3,137 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE ATOMIC SPRINT | F1 TIMING</title>
+    <title>THE ATOMIC SPRINT | LEADERBOARD</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.3.5/mqtt.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500;700&family=Titillium+Web:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Roboto+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --f1-red: #E10600; 
-            --f1-dark: #15151E; 
-            --f1-panel: #1e1e27;
-            --f1-border: #38383f;
-            --f1-text: #ffffff;
-            --f1-text-muted: #a0a0a8;
+            --neon-blue: #00d4ff; 
+            --neon-blue-dim: rgba(0, 212, 255, 0.2);
+            --dark-bg: #030408; 
+            --panel-bg: rgba(10, 15, 25, 0.7);
+            --border-glow: 0 0 10px rgba(0, 212, 255, 0.5);
             --purple-sector: #B138FF; 
-            --needle-blue: #00D2BE; /* Motorsport Cyan */
-            --net-yellow: #FFF500; /* Motorsport Yellow */
+            --needle-color: #00d4ff; 
+            --net-color: #FFF500; 
+            --text-main: #e0e0e0;
         }
 
         body {
-            background-color: #000; 
-            color: var(--f1-text); 
-            font-family: 'Titillium Web', sans-serif;
+            background-color: var(--dark-bg); 
+            color: var(--text-main); 
+            font-family: 'Montserrat', sans-serif;
             margin: 0; 
             padding: 0; 
             min-height: 100vh;
+            /* Deep, dark background matching the poster's cinematic blur */
             background-image: 
-                radial-gradient(circle at top right, #1a1a24 0%, #000 60%),
-                linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.8) 100%);
+                radial-gradient(circle at top center, rgba(0, 80, 150, 0.15) 0%, transparent 60%),
+                linear-gradient(to bottom, #05060a 0%, #000000 100%);
             background-attachment: fixed;
         }
 
-        /* --- BROADCAST HEADER --- */
+        /* --- HEADER (Poster Title Vibe) --- */
         .f1-header {
-            background: linear-gradient(90deg, var(--f1-red) 0%, #a60400 100%);
-            padding: 15px 30px;
+            background: transparent;
+            padding: 20px 30px;
             display: flex; 
             justify-content: space-between; 
             align-items: center;
-            border-bottom: 3px solid #000;
-            box-shadow: 0 4px 15px rgba(225, 6, 0, 0.3);
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 4px 20px var(--neon-blue-dim);
+            backdrop-filter: blur(5px);
         }
         .header-title {
-            font-size: 2.2rem;
-            font-weight: 900;
+            font-size: 2rem;
+            font-weight: 800;
             font-style: italic;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             text-transform: uppercase;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
             display: flex;
             align-items: center;
             gap: 10px;
         }
         .header-title .highlight {
-            background: #fff;
-            color: #000;
-            padding: 0 8px;
-            border-radius: 2px;
+            color: var(--neon-blue);
+            text-shadow: 0 0 15px var(--neon-blue);
         }
         .header-live {
             font-family: 'Roboto Mono', monospace;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 0.9rem;
-            background: rgba(0,0,0,0.4);
-            padding: 5px 12px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            padding: 6px 15px;
             border-radius: 4px;
+            color: var(--neon-blue);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            box-shadow: inset 0 0 8px var(--neon-blue-dim);
         }
         .live-dot {
             width: 8px; height: 8px;
-            background-color: #00ff00;
+            background-color: var(--neon-blue);
             border-radius: 50%;
             animation: blink 1.5s infinite ease-in-out;
         }
-        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; box-shadow: 0 0 8px #00ff00; } }
+        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; box-shadow: 0 0 10px var(--neon-blue); } }
 
         /* --- LEADERBOARD GRID --- */
         .leaderboard-container { 
             max-width: 950px; 
-            margin: 30px auto; 
+            margin: 40px auto; 
             padding: 0 15px; 
         }
         .f1-row {
             display: grid; 
             grid-template-columns: 50px 6px 1fr 100px 70px 45px 45px;
-            background: var(--f1-dark); 
-            margin-bottom: 6px; 
+            background: var(--panel-bg); 
+            margin-bottom: 12px; 
             height: 65px;
             align-items: center; 
-            border-right: 2px solid var(--f1-border);
+            border: 1px solid rgba(0, 212, 255, 0.4);
             border-radius: 4px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6), inset 0 0 10px rgba(0, 212, 255, 0.05);
             animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             gap: 8px;
-            transition: background 0.2s;
+            transition: all 0.2s;
+            backdrop-filter: blur(4px);
         }
         @keyframes slideIn { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .f1-row:hover { background: var(--f1-panel); }
+        .f1-row:hover { 
+            border-color: var(--neon-blue);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8), inset 0 0 15px var(--neon-blue-dim);
+        }
 
         /* Row Elements */
         .f1-pos-wrapper {
-            background: #fff;
-            color: #000;
+            color: var(--neon-blue);
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: 'Roboto Mono', monospace;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            border-right: 1px solid rgba(0, 212, 255, 0.2);
+            text-shadow: 0 0 8px var(--neon-blue-dim);
         }
-        .needle-bar { background: var(--needle-blue); height: 100%; }
-        .net-bar { background: var(--net-yellow); height: 100%; }
+        .needle-bar { background: var(--needle-color); height: 100%; box-shadow: 0 0 8px var(--needle-color); }
+        .net-bar { background: var(--net-color); height: 100%; box-shadow: 0 0 8px var(--net-color); }
         
-        .f1-driver-info { padding-left: 8px; display: flex; flex-direction: column; justify-content: center; }
+        .f1-driver-info { padding-left: 10px; display: flex; flex-direction: column; justify-content: center; }
         .f1-name { 
             font-weight: 700; 
             text-transform: uppercase; 
-            font-size: 1.2rem; 
-            letter-spacing: 0.5px;
-            line-height: 1.1;
+            font-size: 1.1rem; 
+            letter-spacing: 1px;
+            color: #fff;
         }
         .f1-team { 
             font-size: 0.7rem; 
-            color: var(--f1-text-muted); 
+            color: #9aa0a6; 
             text-transform: uppercase;
             font-weight: 600;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
 
         .f1-time-wrapper {
@@ -141,18 +150,17 @@
             display: flex;
             justify-content: flex-end;
             align-items: center;
-            padding-right: 12px;
+            padding-right: 15px;
             font-family: 'Roboto Mono', monospace;
-            font-weight: 700;
+            font-weight: 600;
             font-size: 1.2rem;
-            background: rgba(255,255,255,0.03);
-            border-left: 1px solid var(--f1-border);
+            color: #fff;
+            border-left: 1px solid rgba(0, 212, 255, 0.2);
         }
         .fastest-lap { 
-            background: var(--purple-sector); 
-            color: #fff; 
-            border-left: none;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+            color: var(--purple-sector); 
+            text-shadow: 0 0 12px rgba(177, 56, 255, 0.8);
+            font-weight: 700;
         }
 
         .f1-crystal { 
@@ -160,13 +168,13 @@
             width: 100%; 
             object-fit: cover; 
             border-radius: 4px;
-            border: 1px solid var(--f1-border);
+            border: 1px solid rgba(255,255,255,0.2);
         }
         
         .action-btn { 
             background: transparent; 
             border: none; 
-            color: var(--f1-text-muted); 
+            color: #9aa0a6; 
             cursor: pointer; 
             display: flex;
             justify-content: center;
@@ -175,33 +183,36 @@
             padding: 8px;
             border-radius: 4px;
         }
-        .action-btn svg { width: 22px; height: 22px; }
+        .action-btn svg { width: 20px; height: 20px; }
         .action-btn:hover { 
-            color: #fff; 
-            background: rgba(255,255,255,0.1); 
+            color: var(--neon-blue); 
+            background: rgba(0, 212, 255, 0.1); 
             transform: scale(1.05); 
         }
 
         /* --- ADMIN & CAM PANELS --- */
         #admin-panel {
-            background: var(--f1-dark); 
-            padding: 25px; 
-            border-top: 4px solid var(--f1-red);
+            background: var(--panel-bg); 
+            padding: 30px; 
+            border: 1px solid var(--neon-blue);
             max-width: 900px; 
             margin: 30px auto; 
             display: none; 
             border-radius: 8px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            box-shadow: var(--border-glow);
+            backdrop-filter: blur(10px);
         }
         .admin-header {
-            color: #fff;
+            color: var(--neon-blue);
             font-weight: 700;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             margin-top: 0;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: flex;
             align-items: center;
             gap: 10px;
+            letter-spacing: 1.5px;
+            text-shadow: 0 0 8px var(--neon-blue-dim);
         }
         .admin-controls { 
             display: grid; 
@@ -211,80 +222,91 @@
         }
         input, select { 
             padding: 12px 15px; 
-            font-family: 'Titillium Web', sans-serif; 
-            font-size: 1.1rem; 
+            font-family: 'Montserrat', sans-serif; 
+            font-size: 1rem; 
             font-weight: 600;
-            background: #09090d; 
-            border: 1px solid var(--f1-border); 
+            background: rgba(0,0,0,0.6); 
+            border: 1px solid rgba(0, 212, 255, 0.4); 
             color: #fff; 
             border-radius: 4px;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        input:focus, select:focus { border-color: var(--f1-red); outline: none; }
+        input:focus, select:focus { 
+            border-color: var(--neon-blue); 
+            outline: none; 
+            box-shadow: 0 0 8px var(--neon-blue-dim);
+        }
         
-        .btn-red { 
-            background: var(--f1-red); 
-            border: none; 
-            font-family: 'Titillium Web', sans-serif;
+        .btn-glow { 
+            background: rgba(0, 212, 255, 0.1); 
+            border: 1px solid var(--neon-blue); 
+            font-family: 'Montserrat', sans-serif;
             font-weight: 700; 
-            font-size: 1.1rem;
-            color: #fff;
+            font-size: 1rem;
+            color: var(--neon-blue);
             padding: 0 25px;
             border-radius: 4px;
             cursor: pointer; 
-            transition: background 0.2s, transform 0.1s;
+            transition: all 0.2s;
+            box-shadow: inset 0 0 10px var(--neon-blue-dim);
         }
-        .btn-red:hover { background: #ff1801; }
-        .btn-red:active { transform: scale(0.98); }
+        .btn-glow:hover { 
+            background: rgba(0, 212, 255, 0.2); 
+            box-shadow: inset 0 0 15px rgba(0, 212, 255, 0.4), 0 0 10px var(--neon-blue-dim);
+        }
+        .btn-glow:active { transform: scale(0.98); }
         
         .qr-section { 
             display: flex; 
             justify-content: space-around; 
-            background: #09090d; 
-            padding: 20px; 
+            background: rgba(0,0,0,0.4); 
+            padding: 25px; 
             border-radius: 6px;
-            border: 1px solid var(--f1-border);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .qr-box { text-align: center; font-size: 0.9rem; color: var(--f1-text-muted); font-weight: 600;}
-        .qr-box strong { color: #fff; display: block; margin-bottom: 5px; font-size: 1rem;}
-        .qr-box div { background: #fff; padding: 8px; display: inline-block; margin-top: 10px; border-radius: 4px;}
+        .qr-box { text-align: center; font-size: 0.85rem; color: #9aa0a6; font-weight: 600; line-height: 1.5;}
+        .qr-box strong { color: #fff; display: block; margin-bottom: 8px; font-size: 1rem; letter-spacing: 1px;}
+        .qr-box div { background: #fff; padding: 10px; display: inline-block; margin-top: 12px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
 
         #cam-panel { 
             display: none; 
             padding: 20px; 
             text-align: center; 
             height: 100vh; 
-            background: var(--f1-dark); 
+            background: var(--dark-bg); 
+            background-image: radial-gradient(circle at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
         }
-        .cam-status { font-weight: 700; font-size: 2rem; color: var(--f1-text-muted); margin-top: 35vh; }
+        .cam-status { font-weight: 600; font-size: 1.5rem; color: #9aa0a6; margin-top: 35vh; letter-spacing: 2px;}
         .camera-ui { display: none; margin-top: 15vh; }
-        .driver-target { font-size: 3rem; font-weight: 900; color: var(--f1-red); text-transform: uppercase; line-height: 1;}
+        .driver-target { font-size: 2.5rem; font-weight: 800; color: #fff; text-transform: uppercase; line-height: 1.2; text-shadow: 0 0 15px rgba(255,255,255,0.3);}
         
         .shutter-wrapper { position: relative; margin-top: 50px; display: inline-block; width: 100%; max-width: 320px; }
         .shutter-wrapper input { position: absolute; left: 0; top: 0; opacity: 0; height: 100%; width: 100%; cursor: pointer; z-index: 10; }
         .fake-shutter { 
-            background: var(--f1-red); 
-            color: white; 
-            padding: 40px 20px; 
-            border-radius: 15px; 
-            font-weight: 900; 
-            font-size: 2rem; 
-            box-shadow: 0 10px 30px rgba(225,6,0,0.4); 
-            border: 4px solid #ff4d48;
-            transition: transform 0.2s;
+            background: rgba(0, 212, 255, 0.1); 
+            color: var(--neon-blue); 
+            padding: 35px 20px; 
+            border-radius: 8px; 
+            font-weight: 800; 
+            font-size: 1.5rem; 
+            box-shadow: inset 0 0 20px var(--neon-blue-dim), 0 0 15px var(--neon-blue-dim); 
+            border: 2px solid var(--neon-blue);
+            transition: all 0.2s;
+            letter-spacing: 1px;
         }
-        .shutter-wrapper:active .fake-shutter { transform: scale(0.95); }
+        .shutter-wrapper:active .fake-shutter { transform: scale(0.95); background: rgba(0, 212, 255, 0.3);}
         
         .empty-state { 
             text-align: center; 
             padding: 60px 20px; 
-            color: var(--f1-text-muted); 
+            color: #9aa0a6; 
             font-weight: 600; 
-            font-size: 1.5rem; 
-            letter-spacing: 1px;
-            background: var(--f1-dark);
+            font-size: 1.2rem; 
+            letter-spacing: 2px;
+            background: var(--panel-bg);
             border-radius: 4px;
-            border: 1px dashed var(--f1-border);
+            border: 1px dashed rgba(0, 212, 255, 0.3);
+            text-transform: uppercase;
         }
     </style>
 </head>
@@ -292,7 +314,7 @@
 
     <div class="f1-header">
         <div class="header-title">
-            ATOMIC <span class="highlight">SPRINT</span>
+            THE ATOMIC <span class="highlight">SPRINT</span>
         </div>
         <div class="header-live">
             <div class="live-dot"></div> LIVE TIMING
@@ -301,7 +323,7 @@
 
     <div id="admin-panel">
         <h3 class="admin-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             PIT WALL COMMAND
         </h3>
         <div class="admin-controls">
@@ -311,9 +333,9 @@
                 <option value="net">TEAM NET</option>
             </select>
             <input type="number" id="a-time" step="0.1" placeholder="TIME (sec)">
-            <button class="btn-red" id="req-photo-btn">REQUEST PHOTO 📷</button>
+            <button class="btn-glow" id="req-photo-btn">REQUEST PHOTO</button>
         </div>
-        <div id="admin-status" style="color:var(--needle-blue); margin-bottom: 15px; font-weight: bold; font-family: 'Roboto Mono';"></div>
+        <div id="admin-status" style="color:var(--neon-blue); margin-bottom: 15px; font-weight: 600; font-family: 'Roboto Mono';"></div>
         
         <div class="qr-section">
             <div class="qr-box">
@@ -332,13 +354,13 @@
     <div id="cam-panel">
         <div id="idle-text" class="cam-status">WAITING FOR LAPTOP...</div>
         <div id="active-cam-ui" class="camera-ui">
-            <div style="color:var(--f1-text-muted); font-weight: 600; font-size: 1.2rem; margin-bottom: 5px;">SNAP CRYSTAL FOR</div>
+            <div style="color:var(--neon-blue); font-weight: 600; font-size: 1rem; margin-bottom: 10px; letter-spacing: 2px;">SNAP CRYSTAL FOR</div>
             <div id="target-name" class="driver-target">---</div>
             <div class="shutter-wrapper">
-                <div class="fake-shutter">📷 TAP TO SHOOT</div>
+                <div class="fake-shutter">TAP TO SHOOT</div>
                 <input type="file" id="camera-input" accept="image/*" capture="camera">
             </div>
-            <div id="upload-status" style="margin-top: 30px; color: var(--needle-blue); font-weight: 700; font-size: 1.2rem; font-family: 'Roboto Mono';"></div>
+            <div id="upload-status" style="margin-top: 30px; color: var(--neon-blue); font-weight: 600; font-size: 1.1rem; font-family: 'Roboto Mono';"></div>
         </div>
     </div>
 
@@ -477,7 +499,7 @@
                 const row = document.createElement('div');
                 row.className = 'f1-row';
                 
-                // Redesigned F1 Style Row
+                // Redesigned Poster-Vibe Row with clean SVG icons
                 row.innerHTML = `
                     <div class="f1-pos-wrapper">${index + 1}</div>
                     <div class="${r.team}-bar"></div>
@@ -502,7 +524,7 @@
             });
         }
 
-        // --- NEW: FORCE DOWNLOAD IMAGE TO GALLERY ---
+        // --- FORCE DOWNLOAD IMAGE TO GALLERY ---
         window.downloadPhoto = function(photoBase64, name, team) {
             const link = document.createElement('a');
             link.href = photoBase64;
@@ -512,7 +534,7 @@
             document.body.removeChild(link);
         }
 
-        // --- UPDATED: NATIVE SHARE (SILENT, NO POPUPS) ---
+        // --- NATIVE SHARE (SILENT, NO POPUPS) ---
         window.shareSocial = async function(name, time, team, photoBase64) {
             const text = `🏎️💨 I just set a ${parseFloat(time).toFixed(3)}s time at the Atomic Sprint! \nDriver: ${name} \nTeam: ${team.toUpperCase()} \n#AtomicSprint #IIScOpenDay`;
             
@@ -522,28 +544,23 @@
                 const file = new File([blob], 'atomic_crystal.jpg', { type: 'image/jpeg' });
 
                 const shareData = {
-                    title: 'Formula Ion Results',
+                    title: 'Atomic Sprint Results',
                     text: text,
                     files: [file] 
                 };
 
-                // Check if device supports file sharing
                 if (navigator.canShare && navigator.canShare(shareData)) {
                     await navigator.share(shareData);
                 } 
-                // Fallback for browsers supporting text only
                 else if (navigator.share) {
-                    await navigator.share({ title: 'Formula Ion Results', text: text });
+                    await navigator.share({ title: 'Atomic Sprint Results', text: text });
                 } 
-                // Desktop fallback silently handles it
                 else {
                     navigator.clipboard.writeText(text);
                     downloadPhoto(photoBase64, name, team);
                     alert("Caption copied to clipboard and photo saved to your device!"); 
                 }
             } catch (err) {
-                // If user cancels the share sheet, it throws an AbortError. 
-                // We ignore it silently instead of throwing annoying prompts.
                 if (err.name !== 'AbortError') {
                     console.error("Share failed silently:", err);
                 }
