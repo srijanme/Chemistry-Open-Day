@@ -283,12 +283,11 @@
             document.body.removeChild(link);
         }
 
-        // --- UPDATED: NATIVE SHARE WITH ACTUAL FILE ATTACHMENT ---
+        // --- UPDATED: NATIVE SHARE (SILENT, NO POPUPS) ---
         window.shareSocial = async function(name, time, team, photoBase64) {
-            const text = `🏎️💨 I just set a ${parseFloat(time).toFixed(3)}s time at the Atomic Sprint! \nDriver: ${name} \nTeam: ${team.toUpperCase()} \n#AtomicSprint`;
+            const text = `🏎️💨 I just set a ${parseFloat(time).toFixed(3)}s time at the Atomic Sprint! \nDriver: ${name} \nTeam: ${team.toUpperCase()} \n#AtomicSprint #IIScOpenDay`;
             
             try {
-                // Convert Base64 back into a physical file for apps like WhatsApp
                 const response = await fetch(photoBase64);
                 const blob = await response.blob();
                 const file = new File([blob], 'atomic_crystal.jpg', { type: 'image/jpeg' });
@@ -296,19 +295,29 @@
                 const shareData = {
                     title: 'Formula Ion Results',
                     text: text,
-                    files: [file]
+                    files: [file] 
                 };
 
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                // Check if device supports file sharing
+                if (navigator.canShare && navigator.canShare(shareData)) {
                     await navigator.share(shareData);
-                } else if (navigator.share) {
+                } 
+                // Fallback for browsers supporting text only
+                else if (navigator.share) {
                     await navigator.share({ title: 'Formula Ion Results', text: text });
-                } else {
-                    prompt("Copy this to share:", text);
+                } 
+                // Desktop fallback silently handles it
+                else {
+                    navigator.clipboard.writeText(text);
+                    downloadPhoto(photoBase64, name, team);
+                    alert("Caption copied to clipboard and photo saved to your device!"); 
                 }
             } catch (err) {
-                console.error("Share failed:", err);
-                prompt("Copy this to share:", text);
+                // If user cancels the share sheet, it throws an AbortError. 
+                // We ignore it silently instead of throwing annoying prompts.
+                if (err.name !== 'AbortError') {
+                    console.error("Share failed silently:", err);
+                }
             }
         }
     </script>
