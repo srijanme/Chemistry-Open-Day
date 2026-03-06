@@ -27,17 +27,17 @@
             min-height: 100vh;
         }
 
-        /* --- THE F1 TIMING TOWER --- */
+        /* --- HEADER --- */
         .f1-header {
             background: var(--f1-red); padding: 15px 20px;
             font-family: 'Racing Sans One', sans-serif; font-size: 2.5rem;
             text-transform: uppercase; letter-spacing: 2px;
             display: flex; justify-content: space-between; align-items: center;
         }
-        
         .f1-header span.live { font-size: 1rem; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
+        /* --- THE LEADERBOARD --- */
         .leaderboard-container { max-width: 900px; margin: 20px auto; padding: 0 10px; }
         
         .f1-row {
@@ -46,7 +46,6 @@
             align-items: center; border-right: 2px solid var(--f1-grey);
             animation: slideIn 0.3s ease-out;
         }
-        
         @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         
         .f1-row:hover { background: #1f1f2c; }
@@ -54,121 +53,112 @@
         .needle-bar { background: var(--needle-blue); height: 100%; }
         .net-bar { background: var(--net-yellow); height: 100%; }
         
-        .f1-name { 
-            font-family: 'Montserrat', sans-serif; font-weight: 800; 
-            text-transform: uppercase; padding-left: 15px; font-size: 1.1rem; letter-spacing: 1px;
-        }
-        
-        .f1-team { font-size: 0.7rem; color: #888; display: block; font-family: 'Roboto Mono', monospace; font-weight: 500;}
-        
-        .f1-time { font-size: 1.2rem; font-weight: 700; text-align: right; }
+        .f1-name { font-family: 'Montserrat', sans-serif; font-weight: 800; text-transform: uppercase; padding-left: 15px; font-size: 1.1rem; }
+        .f1-team { font-size: 0.7rem; color: #888; display: block; font-family: 'Roboto Mono', monospace; padding-left: 15px;}
+        .f1-time { font-size: 1.2rem; font-weight: 700; text-align: right; padding-right: 10px;}
         .fastest-lap { color: var(--purple-sector); text-shadow: 0 0 10px rgba(177, 56, 255, 0.5); }
+        .f1-crystal { height: 100%; width: 100%; object-fit: cover; border-left: 2px solid #000; border-right: 2px solid #000;}
         
-        .f1-crystal { height: 100%; width: 100%; object-fit: cover; border-left: 2px solid #000; }
-        
-        .share-btn {
-            background: transparent; border: none; color: #fff; font-size: 1.5rem;
-            cursor: pointer; text-align: center; transition: 0.2s;
-        }
+        .share-btn { background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; text-align: center; transition: 0.2s; }
         .share-btn:hover { color: var(--f1-red); transform: scale(1.2); }
 
-        /* --- LAPTOP ADMIN PANEL --- */
+        /* --- ADMIN PANEL --- */
         #admin-panel {
             background: var(--f1-dark); padding: 20px; border: 2px solid var(--f1-red);
             max-width: 900px; margin: 20px auto; display: none; border-radius: 5px;
         }
         .admin-controls { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 20px; }
         input, select, button { padding: 12px; font-family: 'Roboto Mono'; font-size: 1rem; background: #000; border: 1px solid var(--f1-grey); color: #fff; }
-        .btn-red { background: var(--f1-red); border: none; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        .btn-red { background: var(--f1-red); border: none; font-weight: bold; cursor: pointer; }
         .btn-red:hover { background: #ff1801; }
         
         .qr-section { display: flex; justify-content: space-around; background: #000; padding: 15px; border-radius: 5px;}
-        .qr-box { text-align: center; font-size: 0.8rem; }
-        .qr-box div { background: #fff; padding: 5px; display: inline-block; margin-top: 5px; }
+        .qr-box { text-align: center; font-size: 0.8rem; color: #aaa;}
+        .qr-box div { background: #fff; padding: 5px; display: inline-block; margin-top: 5px; border-radius: 4px;}
 
-        /* --- PHONE CAMERA REMOTE --- */
+        /* --- CAMERA PANEL --- */
         #cam-panel { display: none; padding: 20px; text-align: center; height: 100vh; background: var(--f1-dark); }
-        .cam-status { font-family: 'Racing Sans One'; font-size: 2rem; color: #888; margin-top: 40vh; }
-        
+        .cam-status { font-family: 'Racing Sans One'; font-size: 2rem; color: #888; margin-top: 30vh; }
         .camera-ui { display: none; margin-top: 10vh; }
         .driver-target { font-family: 'Montserrat'; font-size: 2.5rem; font-weight: 800; color: var(--f1-red); text-transform: uppercase;}
-        
         .shutter-wrapper { position: relative; margin-top: 40px; display: inline-block; width: 100%; max-width: 300px; }
         .shutter-wrapper input { position: absolute; left: 0; top: 0; opacity: 0; height: 100%; width: 100%; cursor: pointer; }
         .fake-shutter { background: var(--f1-red); color: white; padding: 40px 20px; border-radius: 10px; font-family: 'Racing Sans One'; font-size: 2rem; box-shadow: 0 10px 30px rgba(225,6,0,0.5); }
+        
+        .empty-state { text-align: center; padding: 40px; color: #555; font-family: 'Racing Sans One'; font-size: 1.5rem; letter-spacing: 1px;}
     </style>
 </head>
 <body>
 
-    <div id="app">
-        <div class="f1-header">
-            <div>ATOMIC <span style="color:#000; background:#fff; padding: 0 5px;">SPRINT</span></div>
-            <span class="live">● LIVE TIMING</span>
-        </div>
+    <div class="f1-header">
+        <div>ATOMIC <span style="color:#000; background:#fff; padding: 0 5px;">SPRINT</span></div>
+        <span class="live">● LIVE TIMING</span>
+    </div>
 
-        <div id="admin-panel">
-            <h3 style="margin-top:0; color:var(--f1-red); font-family:'Racing Sans One';">PIT WALL COMMAND</h3>
-            <div class="admin-controls">
-                <input type="text" id="a-name" placeholder="DRIVER NAME">
-                <select id="a-team">
-                    <option value="needle">TEAM NEEDLE</option>
-                    <option value="net">TEAM NET</option>
-                </select>
-                <input type="number" id="a-time" step="0.1" placeholder="TIME (sec)">
-                <button class="btn-red" id="req-photo-btn">REQUEST PHOTO FROM PHONE 📷</button>
+    <div id="admin-panel">
+        <h3 style="margin-top:0; color:var(--f1-red); font-family:'Racing Sans One';">PIT WALL COMMAND</h3>
+        <div class="admin-controls">
+            <input type="text" id="a-name" placeholder="DRIVER NAME">
+            <select id="a-team">
+                <option value="needle">TEAM NEEDLE</option>
+                <option value="net">TEAM NET</option>
+            </select>
+            <input type="number" id="a-time" step="0.1" placeholder="TIME (sec)">
+            <button class="btn-red" id="req-photo-btn">REQUEST PHOTO 📷</button>
+        </div>
+        <div id="admin-status" style="color:var(--needle-blue); margin-bottom: 10px; font-weight: bold;"></div>
+        
+        <div class="qr-section">
+            <div class="qr-box">
+                <strong style="color:#fff;">1. YOUR PHONE (CAMERA)</strong><br>Scan to make your phone the remote.<br>
+                <div id="qr-cam"></div>
             </div>
-            <div id="admin-status" style="color:var(--needle-blue); margin-bottom: 10px; font-weight: bold;"></div>
-            
-            <div class="qr-section">
-                <div class="qr-box">
-                    <strong>1. YOUR PHONE (CAMERA)</strong><br>Scan this to make your phone the remote shutter.<br>
-                    <div id="qr-cam"></div>
-                </div>
-                <div class="qr-box">
-                    <strong>2. THE CROWD (LEADERBOARD)</strong><br>Visitors scan this to view and share.<br>
-                    <div id="qr-public"></div>
-                </div>
+            <div class="qr-box">
+                <strong style="color:#fff;">2. THE CROWD (LEADERBOARD)</strong><br>Visitors scan to view and share.<br>
+                <div id="qr-public"></div>
             </div>
         </div>
+    </div>
 
-        <div id="cam-panel">
-            <div id="idle-text" class="cam-status">WAITING FOR LAPTOP...</div>
-            
-            <div id="active-cam-ui" class="camera-ui">
-                <div style="color:#888;">SNAP CRYSTAL FOR</div>
-                <div id="target-name" class="driver-target">---</div>
-                
-                <div class="shutter-wrapper">
-                    <div class="fake-shutter">📷 TAP TO SHOOT</div>
-                    <input type="file" id="camera-input" accept="image/*" capture="camera">
-                </div>
-                <div id="upload-status" style="margin-top: 20px; color: var(--needle-blue); font-weight: bold;"></div>
+    <div id="cam-panel">
+        <div id="idle-text" class="cam-status">WAITING FOR LAPTOP...</div>
+        <div id="active-cam-ui" class="camera-ui">
+            <div style="color:#888;">SNAP CRYSTAL FOR</div>
+            <div id="target-name" class="driver-target">---</div>
+            <div class="shutter-wrapper">
+                <div class="fake-shutter">📷 TAP TO SHOOT</div>
+                <input type="file" id="camera-input" accept="image/*" capture="camera">
             </div>
+            <div id="upload-status" style="margin-top: 20px; color: var(--needle-blue); font-weight: bold;"></div>
         </div>
+    </div>
 
-        <div id="public-panel" class="leaderboard-container">
-            <div id="leaderboard"></div>
+    <div id="public-panel" class="leaderboard-container">
+        <div id="leaderboard">
+            <div class="empty-state">WAITING FOR FIRST RACER...</div>
         </div>
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         let room = urlParams.get('room');
-        const role = urlParams.get('role') || 'admin'; // admin, cam, public
+        const role = urlParams.get('role') || 'admin';
 
+        // Auto-generate room if opening fresh
         if (!room && role === 'admin') {
             room = 'gp_' + Math.random().toString(36).substring(2, 8);
             window.location.href = `?room=${room}&role=admin`;
         }
 
         const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
-        const topic = `iisc_atomic_sprint_${room}`;
-        let racers = [];
-        let pendingRun = null; // Holds data on the phone while taking photo
+        
+        // Two channels: one for camera commands, one for the full master leaderboard
+        const topic_events = `iisc_events_${room}`;
+        const topic_board = `iisc_board_${room}`;
+        
+        let masterRacers = []; // Only the Laptop manages this list
 
-        client.on('connect', () => { client.subscribe(topic); });
-
-        // --- ROLE ROUTING ---
+        // --- 1. ADMIN LOGIC (LAPTOP) ---
         if (role === 'admin') {
             document.getElementById('admin-panel').style.display = 'block';
             
@@ -177,25 +167,69 @@
             new QRCode(document.getElementById("qr-cam"), { text: `${baseURL}?room=${room}&role=cam`, width: 120, height: 120 });
             new QRCode(document.getElementById("qr-public"), { text: `${baseURL}?room=${room}&role=public`, width: 120, height: 120 });
 
-            // Step 2: Laptop requests photo
+            client.on('connect', () => { 
+                client.subscribe(topic_events); 
+                // Clear the board on startup just in case
+                client.publish(topic_board, JSON.stringify([]), { retain: true });
+            });
+
+            // Send command to phone
             document.getElementById('req-photo-btn').addEventListener('click', () => {
                 const name = document.getElementById('a-name').value;
                 const team = document.getElementById('a-team').value;
                 const time = document.getElementById('a-time').value;
-
                 if(!name || !time) return alert("Enter Name and Time!");
 
                 document.getElementById('admin-status').innerText = "📡 SIGNAL SENT. OPEN CAMERA ON PHONE...";
-                
-                // Tell the phone to wake up
-                client.publish(topic, JSON.stringify({ action: "request_photo", name, team, time }));
+                client.publish(topic_events, JSON.stringify({ action: "request_photo", name, team, time }));
             });
 
-        } else if (role === 'cam') {
-            document.getElementById('public-panel').style.display = 'none'; // Hide leaderboard on camera phone
+            // Receive photo from phone
+            client.on('message', (topic, message) => {
+                if (topic === topic_events) {
+                    const data = JSON.parse(message.toString());
+                    if (data.action === "submit_run") {
+                        // Reset admin fields
+                        document.getElementById('a-name').value = '';
+                        document.getElementById('a-time').value = '';
+                        document.getElementById('admin-status').innerText = "✅ RUN RECORDED!";
+                        setTimeout(() => document.getElementById('admin-status').innerText = "", 3000);
+
+                        // Add to master list and sort (Fastest Lap)
+                        masterRacers.push(data);
+                        masterRacers.sort((a, b) => parseFloat(a.time) - parseFloat(b.time));
+
+                        // Render on Laptop
+                        renderLeaderboard(masterRacers);
+
+                        // BROADCAST ENTIRE BOARD (with retain: true so latecomers see it immediately)
+                        client.publish(topic_board, JSON.stringify(masterRacers), { retain: true });
+                    }
+                }
+            });
+        }
+
+        // --- 2. CAMERA LOGIC (PHONE) ---
+        else if (role === 'cam') {
+            document.getElementById('public-panel').style.display = 'none'; // Hide board on camera
             document.getElementById('cam-panel').style.display = 'block';
 
-            // Step 3: Phone processes the photo
+            client.on('connect', () => { client.subscribe(topic_events); });
+
+            let pendingRun = null;
+
+            client.on('message', (topic, message) => {
+                if (topic === topic_events) {
+                    const data = JSON.parse(message.toString());
+                    if (data.action === "request_photo") {
+                        pendingRun = data;
+                        document.getElementById('idle-text').style.display = 'none';
+                        document.getElementById('target-name').innerText = data.name;
+                        document.getElementById('active-cam-ui').style.display = 'block';
+                    }
+                }
+            });
+
             document.getElementById('camera-input').addEventListener('change', function(e) {
                 const file = e.target.files[0];
                 if (!file || !pendingRun) return;
@@ -213,8 +247,8 @@
                         
                         const photoBase64 = canvas.toDataURL('image/jpeg', 0.6);
                         
-                        // Submit the final run to the leaderboard
-                        client.publish(topic, JSON.stringify({
+                        // Send data back to Laptop
+                        client.publish(topic_events, JSON.stringify({
                             action: "submit_run",
                             name: pendingRun.name,
                             team: pendingRun.team,
@@ -222,7 +256,7 @@
                             photo: photoBase64
                         }));
 
-                        // Reset Camera UI
+                        // Reset UI
                         document.getElementById('active-cam-ui').style.display = 'none';
                         document.getElementById('idle-text').style.display = 'block';
                         document.getElementById('upload-status').innerText = "";
@@ -234,40 +268,30 @@
             });
         }
 
-        // --- GLOBAL MESSAGE HANDLER (Builds the Leaderboard) ---
-        client.on('message', (topic, message) => {
-            const data = JSON.parse(message.toString());
+        // --- 3. CROWD LOGIC (PUBLIC LEADERBOARD) ---
+        else if (role === 'public') {
+            // Just listen to the master board channel
+            client.on('connect', () => { client.subscribe(topic_board); });
 
-            if (data.action === "request_photo" && role === 'cam') {
-                // Wake up the camera UI
-                pendingRun = data;
-                document.getElementById('idle-text').style.display = 'none';
-                document.getElementById('target-name').innerText = data.name;
-                document.getElementById('active-cam-ui').style.display = 'block';
-            }
-
-            if (data.action === "submit_run") {
-                if (role === 'admin') {
-                    // Reset laptop inputs
-                    document.getElementById('a-name').value = '';
-                    document.getElementById('a-time').value = '';
-                    document.getElementById('admin-status').innerText = "✅ RUN RECORDED!";
-                    setTimeout(() => document.getElementById('admin-status').innerText = "", 3000);
+            client.on('message', (topic, message) => {
+                if (topic === topic_board) {
+                    const currentBoard = JSON.parse(message.toString());
+                    renderLeaderboard(currentBoard);
                 }
+            });
+        }
 
-                // Add to array and sort (Fastest Lap)
-                racers.push(data);
-                racers.sort((a, b) => parseFloat(a.time) - parseFloat(b.time));
-                renderLeaderboard();
-            }
-        });
-
-        // --- RENDER THE F1 TOWER ---
-        function renderLeaderboard() {
+        // --- RENDER FUNCTION (Used by Laptop and Crowd) ---
+        function renderLeaderboard(dataArray) {
             const board = document.getElementById('leaderboard');
             board.innerHTML = '';
             
-            racers.forEach((r, index) => {
+            if (dataArray.length === 0) {
+                board.innerHTML = '<div class="empty-state">WAITING FOR FIRST RACER...</div>';
+                return;
+            }
+
+            dataArray.forEach((r, index) => {
                 const isFastest = index === 0;
                 const row = document.createElement('div');
                 row.className = 'f1-row';
@@ -286,9 +310,9 @@
             });
         }
 
-        // --- CROWD SHARING ---
+        // --- SOCIAL SHARING ---
         window.shareSocial = function(name, time, team) {
-            const text = `🏎️💨 I just set a ${time}s time at the IISc Atomic Sprint! \nDriver: ${name} \nTeam: ${team.toUpperCase()} \n#AtomicSprint #IIScOpenDay`;
+            const text = `🏎️💨 I just set a ${parseFloat(time).toFixed(3)}s time at the IISc Atomic Sprint! \nDriver: ${name} \nTeam: ${team.toUpperCase()} \n#AtomicSprint #IIScOpenDay`;
             if(navigator.share) {
                 navigator.share({ title: 'Formula Ion Results', text: text });
             } else {
