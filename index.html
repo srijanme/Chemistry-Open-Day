@@ -35,23 +35,23 @@
         /* --- LEADERBOARD --- */
         .leaderboard-container { max-width: 900px; margin: 20px auto; padding: 0 10px; }
         .f1-row {
-            display: grid; grid-template-columns: 50px 8px 1fr 100px 80px 50px;
+            display: grid; grid-template-columns: 40px 8px 1fr 80px 70px 40px 40px;
             background: var(--f1-dark); margin-bottom: 4px; height: 60px;
             align-items: center; border-right: 2px solid var(--f1-grey);
-            animation: slideIn 0.3s ease-out;
+            animation: slideIn 0.3s ease-out; gap: 5px;
         }
         @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         .f1-row:hover { background: #1f1f2c; }
         .f1-pos { text-align: center; font-weight: 700; font-size: 1.2rem; }
         .needle-bar { background: var(--needle-blue); height: 100%; }
         .net-bar { background: var(--net-yellow); height: 100%; }
-        .f1-name { font-family: 'Montserrat', sans-serif; font-weight: 800; text-transform: uppercase; padding-left: 15px; font-size: 1.1rem; }
-        .f1-team { font-size: 0.7rem; color: #888; display: block; font-family: 'Roboto Mono', monospace; padding-left: 15px;}
-        .f1-time { font-size: 1.2rem; font-weight: 700; text-align: right; padding-right: 10px;}
+        .f1-name { font-family: 'Montserrat', sans-serif; font-weight: 800; text-transform: uppercase; padding-left: 10px; font-size: 1rem; }
+        .f1-team { font-size: 0.65rem; color: #888; display: block; font-family: 'Roboto Mono', monospace; padding-left: 10px;}
+        .f1-time { font-size: 1.1rem; font-weight: 700; text-align: right; padding-right: 5px;}
         .fastest-lap { color: var(--purple-sector); text-shadow: 0 0 10px rgba(177, 56, 255, 0.5); }
         .f1-crystal { height: 100%; width: 100%; object-fit: cover; border-left: 2px solid #000; border-right: 2px solid #000;}
-        .share-btn { background: transparent; border: none; color: #fff; font-size: 1.5rem; cursor: pointer; text-align: center; transition: 0.2s; }
-        .share-btn:hover { color: var(--f1-red); transform: scale(1.2); }
+        .action-btn { background: transparent; border: none; color: #fff; font-size: 1.3rem; cursor: pointer; text-align: center; transition: 0.2s; padding: 0;}
+        .action-btn:hover { color: var(--f1-red); transform: scale(1.2); }
 
         /* --- PANELS --- */
         #admin-panel {
@@ -130,7 +130,7 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         
-        // 🔥 PERMANENT HARDCODED ROOM ID
+        // PERMANENT HARDCODED ROOM ID
         let room = urlParams.get('room') || 'atomic_sprint_2026';
         const role = urlParams.get('role') || 'admin';
 
@@ -264,18 +264,51 @@
                     </div>
                     <div class="f1-time ${isFastest ? 'fastest-lap' : ''}">${parseFloat(r.time).toFixed(3)}s</div>
                     <img src="${r.photo}" class="f1-crystal">
-                    <button class="share-btn" onclick="shareSocial('${r.name}', '${r.time}', '${r.team}')">📤</button>
+                    
+                    <button class="action-btn" onclick="downloadPhoto('${r.photo}', '${r.name}', '${r.team}')" title="Save to Gallery">📥</button>
+                    
+                    <button class="action-btn" onclick="shareSocial('${r.name}', '${r.time}', '${r.team}', '${r.photo}')" title="Share via App">📤</button>
                 `;
                 board.appendChild(row);
             });
         }
 
-        window.shareSocial = function(name, time, team) {
+        // --- NEW: FORCE DOWNLOAD IMAGE TO GALLERY ---
+        window.downloadPhoto = function(photoBase64, name, team) {
+            const link = document.createElement('a');
+            link.href = photoBase64;
+            link.download = `AtomicSprint_${name}_${team}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // --- UPDATED: NATIVE SHARE WITH ACTUAL FILE ATTACHMENT ---
+        window.shareSocial = async function(name, time, team, photoBase64) {
             const text = `🏎️💨 I just set a ${parseFloat(time).toFixed(3)}s time at the Atomic Sprint! \nDriver: ${name} \nTeam: ${team.toUpperCase()} \n#AtomicSprint`;
-            if(navigator.share) {
-                navigator.share({ title: 'Formula Ion Results', text: text });
-            } else {
-                prompt("Copy this to share on social media:", text);
+            
+            try {
+                // Convert Base64 back into a physical file for apps like WhatsApp
+                const response = await fetch(photoBase64);
+                const blob = await response.blob();
+                const file = new File([blob], 'atomic_crystal.jpg', { type: 'image/jpeg' });
+
+                const shareData = {
+                    title: 'Formula Ion Results',
+                    text: text,
+                    files: [file]
+                };
+
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                    await navigator.share(shareData);
+                } else if (navigator.share) {
+                    await navigator.share({ title: 'Formula Ion Results', text: text });
+                } else {
+                    prompt("Copy this to share:", text);
+                }
+            } catch (err) {
+                console.error("Share failed:", err);
+                prompt("Copy this to share:", text);
             }
         }
     </script>
