@@ -129,13 +129,10 @@
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
-        let room = urlParams.get('room');
+        
+        // 🔥 PERMANENT HARDCODED ROOM ID
+        let room = urlParams.get('room') || 'atomic_sprint_2026';
         const role = urlParams.get('role') || 'admin';
-
-        if (!room && role === 'admin') {
-            room = 'gp_' + Math.random().toString(36).substring(2, 8);
-            window.location.href = `?room=${room}&role=admin`;
-        }
 
         const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
         const topic_events = `iisc_events_${room}`;
