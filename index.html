@@ -8,142 +8,182 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.3.5/mqtt.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Roboto+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;1,400;1,700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --neon-blue: #00d4ff; 
-            --neon-blue-dim: rgba(0, 212, 255, 0.2);
-            --dark-bg: #030408; 
-            --panel-bg: rgba(10, 15, 25, 0.7);
-            --border-glow: 0 0 10px rgba(0, 212, 255, 0.5);
-            --purple-sector: #B138FF; 
-            --needle-color: #00d4ff; 
-            --net-color: #FFF500; 
-            --text-main: #e0e0e0;
+            --poster-blue: #2e90e8; 
+            --poster-glow: 0 0 12px rgba(46, 144, 232, 0.5);
+            --bg-deep: #050811;
+            --panel-bg: rgba(5, 8, 17, 0.85);
+            --text-main: #e2e8f0;
+            --purple-sector: #a855f7; 
+            --needle-color: #38bdf8; 
+            --net-color: #fde047; 
         }
 
         body {
-            background-color: var(--dark-bg); 
+            background-color: var(--bg-deep); 
             color: var(--text-main); 
             font-family: 'Montserrat', sans-serif;
             margin: 0; 
             padding: 0; 
             min-height: 100vh;
-            /* Deep, dark background matching the poster's cinematic blur */
             background-image: 
-                radial-gradient(circle at top center, rgba(0, 80, 150, 0.15) 0%, transparent 60%),
-                linear-gradient(to bottom, #05060a 0%, #000000 100%);
+                radial-gradient(circle at 50% 10%, rgba(46, 144, 232, 0.15) 0%, transparent 60%),
+                linear-gradient(to bottom, #050811 0%, #000000 100%);
             background-attachment: fixed;
+            font-weight: 400; /* Ensuring clean, non-clunky text */
         }
 
-        /* --- HEADER (Poster Title Vibe) --- */
-        .f1-header {
-            background: transparent;
-            padding: 20px 30px;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            border-bottom: 2px solid var(--neon-blue);
-            box-shadow: 0 4px 20px var(--neon-blue-dim);
-            backdrop-filter: blur(5px);
+        /* --- POSTER-STYLE HEADER --- */
+        .poster-header-container {
+            text-align: center;
+            padding: 40px 20px 20px;
+            position: relative;
         }
-        .header-title {
-            font-size: 2rem;
-            font-weight: 800;
+        /* The speed streak behind the text */
+        .poster-header-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+            box-shadow: 0 0 15px rgba(255,255,255,0.5), 0 0 30px rgba(46, 144, 232, 0.4);
+            z-index: 0;
+        }
+        .title-main {
+            font-size: 2.8rem;
+            font-weight: 700;
             font-style: italic;
-            letter-spacing: 2px;
-            text-transform: uppercase;
             color: #fff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
-        .header-title .highlight {
-            color: var(--neon-blue);
-            text-shadow: 0 0 15px var(--neon-blue);
-        }
-        .header-live {
-            font-family: 'Roboto Mono', monospace;
+        .title-sub {
+            font-size: 1.1rem;
             font-weight: 600;
-            font-size: 0.9rem;
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid var(--neon-blue);
-            padding: 6px 15px;
-            border-radius: 4px;
-            color: var(--neon-blue);
+            font-style: italic;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 5px;
+            position: relative;
+            z-index: 1;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        /* --- TRAPEZOID SECTION HEADERS (Like the poster) --- */
+        .section-header-wrapper {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: inset 0 0 8px var(--neon-blue-dim);
+            justify-content: center;
+            margin: 30px 0 20px;
         }
-        .live-dot {
-            width: 8px; height: 8px;
-            background-color: var(--neon-blue);
-            border-radius: 50%;
-            animation: blink 1.5s infinite ease-in-out;
+        .section-header {
+            background: rgba(0,0,0,0.6);
+            border-top: 2px solid var(--poster-blue);
+            border-bottom: 2px solid var(--poster-blue);
+            padding: 6px 40px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+            position: relative;
+            box-shadow: var(--poster-glow);
         }
-        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; box-shadow: 0 0 10px var(--neon-blue); } }
+        /* Creating the angled sides */
+        .section-header::before, .section-header::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            width: 20px;
+            height: calc(100% + 4px);
+            border-top: 2px solid var(--poster-blue);
+            border-bottom: 2px solid var(--poster-blue);
+            background: rgba(0,0,0,0.6);
+        }
+        .section-header::before {
+            left: -10px;
+            transform: skewX(-30deg);
+            border-left: 2px solid var(--poster-blue);
+            box-shadow: -3px 0 5px rgba(46, 144, 232, 0.3);
+        }
+        .section-header::after {
+            right: -10px;
+            transform: skewX(30deg);
+            border-right: 2px solid var(--poster-blue);
+            box-shadow: 3px 0 5px rgba(46, 144, 232, 0.3);
+        }
 
         /* --- LEADERBOARD GRID --- */
         .leaderboard-container { 
-            max-width: 950px; 
-            margin: 40px auto; 
+            max-width: 900px; 
+            margin: 0 auto 50px; 
             padding: 0 15px; 
         }
         .f1-row {
             display: grid; 
-            grid-template-columns: 50px 6px 1fr 100px 70px 45px 45px;
+            grid-template-columns: 50px 1fr 100px 70px 45px 45px;
             background: var(--panel-bg); 
             margin-bottom: 12px; 
-            height: 65px;
+            height: 70px;
             align-items: center; 
-            border: 1px solid rgba(0, 212, 255, 0.4);
-            border-radius: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.6), inset 0 0 10px rgba(0, 212, 255, 0.05);
-            animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            gap: 8px;
+            /* Poster style: Hollow boxes with blue outlines */
+            border: 1.5px solid var(--poster-blue);
+            box-shadow: 0 0 10px rgba(46, 144, 232, 0.15), inset 0 0 10px rgba(46, 144, 232, 0.1);
+            animation: slideIn 0.3s ease-out; 
+            gap: 15px;
             transition: all 0.2s;
-            backdrop-filter: blur(4px);
         }
-        @keyframes slideIn { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .f1-row:hover { 
-            border-color: var(--neon-blue);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.8), inset 0 0 15px var(--neon-blue-dim);
+            box-shadow: var(--poster-glow), inset 0 0 15px rgba(46, 144, 232, 0.2);
+            background: rgba(10, 15, 25, 0.95);
         }
 
         /* Row Elements */
         .f1-pos-wrapper {
-            color: var(--neon-blue);
+            color: #fff;
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Roboto Mono', monospace;
-            font-weight: 700;
-            font-size: 1.3rem;
-            border-right: 1px solid rgba(0, 212, 255, 0.2);
-            text-shadow: 0 0 8px var(--neon-blue-dim);
+            font-weight: 600;
+            font-size: 1.2rem;
+            border-right: 1px solid rgba(46, 144, 232, 0.3);
+            background: rgba(46, 144, 232, 0.05);
         }
-        .needle-bar { background: var(--needle-color); height: 100%; box-shadow: 0 0 8px var(--needle-color); }
-        .net-bar { background: var(--net-color); height: 100%; box-shadow: 0 0 8px var(--net-color); }
         
-        .f1-driver-info { padding-left: 10px; display: flex; flex-direction: column; justify-content: center; }
+        .f1-driver-info { padding-left: 5px; display: flex; flex-direction: column; justify-content: center; }
         .f1-name { 
-            font-weight: 700; 
+            font-weight: 600; 
             text-transform: uppercase; 
             font-size: 1.1rem; 
             letter-spacing: 1px;
             color: #fff;
         }
         .f1-team { 
-            font-size: 0.7rem; 
-            color: #9aa0a6; 
+            font-size: 0.75rem; 
+            color: #94a3b8; 
             text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 1.5px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+        .team-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+        }
+        .needle-dot { background: var(--needle-color); box-shadow: 0 0 5px var(--needle-color);}
+        .net-dot { background: var(--net-color); box-shadow: 0 0 5px var(--net-color);}
 
         .f1-time-wrapper {
             height: 100%;
@@ -151,181 +191,154 @@
             justify-content: flex-end;
             align-items: center;
             padding-right: 15px;
-            font-family: 'Roboto Mono', monospace;
-            font-weight: 600;
+            font-weight: 400;
             font-size: 1.2rem;
             color: #fff;
-            border-left: 1px solid rgba(0, 212, 255, 0.2);
+            border-left: 1px solid rgba(46, 144, 232, 0.3);
         }
         .fastest-lap { 
             color: var(--purple-sector); 
-            text-shadow: 0 0 12px rgba(177, 56, 255, 0.8);
-            font-weight: 700;
+            text-shadow: 0 0 8px rgba(168, 85, 247, 0.8);
+            font-weight: 600;
         }
 
         .f1-crystal { 
-            height: 45px; 
+            height: 48px; 
             width: 100%; 
             object-fit: cover; 
-            border-radius: 4px;
             border: 1px solid rgba(255,255,255,0.2);
         }
         
         .action-btn { 
             background: transparent; 
             border: none; 
-            color: #9aa0a6; 
+            color: #94a3b8; 
             cursor: pointer; 
             display: flex;
             justify-content: center;
             align-items: center;
             transition: all 0.2s; 
             padding: 8px;
-            border-radius: 4px;
         }
-        .action-btn svg { width: 20px; height: 20px; }
+        .action-btn svg { width: 20px; height: 20px; stroke-width: 1.5; }
         .action-btn:hover { 
-            color: var(--neon-blue); 
-            background: rgba(0, 212, 255, 0.1); 
-            transform: scale(1.05); 
+            color: #fff; 
+            transform: scale(1.1); 
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
         }
 
-        /* --- ADMIN & CAM PANELS --- */
+        /* --- ADMIN PANEL --- */
         #admin-panel {
             background: var(--panel-bg); 
             padding: 30px; 
-            border: 1px solid var(--neon-blue);
-            max-width: 900px; 
-            margin: 30px auto; 
+            border: 1.5px solid var(--poster-blue);
+            max-width: 860px; 
+            margin: 0 auto 40px; 
             display: none; 
-            border-radius: 8px;
-            box-shadow: var(--border-glow);
-            backdrop-filter: blur(10px);
-        }
-        .admin-header {
-            color: var(--neon-blue);
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-top: 0;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            letter-spacing: 1.5px;
-            text-shadow: 0 0 8px var(--neon-blue-dim);
+            box-shadow: 0 0 20px rgba(0,0,0,0.8), inset 0 0 15px rgba(46, 144, 232, 0.1);
         }
         .admin-controls { 
             display: grid; 
             grid-template-columns: 1fr 1fr 1fr auto; 
             gap: 15px; 
             margin-bottom: 25px; 
+            margin-top: 20px;
         }
         input, select { 
             padding: 12px 15px; 
             font-family: 'Montserrat', sans-serif; 
-            font-size: 1rem; 
-            font-weight: 600;
-            background: rgba(0,0,0,0.6); 
-            border: 1px solid rgba(0, 212, 255, 0.4); 
+            font-size: 0.95rem; 
+            font-weight: 400;
+            background: rgba(0,0,0,0.8); 
+            border: 1px solid rgba(46, 144, 232, 0.4); 
             color: #fff; 
-            border-radius: 4px;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
         input:focus, select:focus { 
-            border-color: var(--neon-blue); 
+            border-color: var(--poster-blue); 
             outline: none; 
-            box-shadow: 0 0 8px var(--neon-blue-dim);
+            box-shadow: 0 0 8px rgba(46, 144, 232, 0.3);
         }
         
         .btn-glow { 
-            background: rgba(0, 212, 255, 0.1); 
-            border: 1px solid var(--neon-blue); 
+            background: rgba(46, 144, 232, 0.15); 
+            border: 1px solid var(--poster-blue); 
             font-family: 'Montserrat', sans-serif;
-            font-weight: 700; 
-            font-size: 1rem;
-            color: var(--neon-blue);
+            font-weight: 600; 
+            font-size: 0.95rem;
+            color: #fff;
             padding: 0 25px;
-            border-radius: 4px;
             cursor: pointer; 
             transition: all 0.2s;
-            box-shadow: inset 0 0 10px var(--neon-blue-dim);
+            box-shadow: inset 0 0 10px rgba(46, 144, 232, 0.2);
         }
         .btn-glow:hover { 
-            background: rgba(0, 212, 255, 0.2); 
-            box-shadow: inset 0 0 15px rgba(0, 212, 255, 0.4), 0 0 10px var(--neon-blue-dim);
+            background: rgba(46, 144, 232, 0.3); 
+            box-shadow: var(--poster-glow);
         }
-        .btn-glow:active { transform: scale(0.98); }
         
         .qr-section { 
             display: flex; 
             justify-content: space-around; 
-            background: rgba(0,0,0,0.4); 
+            background: rgba(0,0,0,0.6); 
             padding: 25px; 
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.1);
+            border: 1px solid rgba(46, 144, 232, 0.2);
         }
-        .qr-box { text-align: center; font-size: 0.85rem; color: #9aa0a6; font-weight: 600; line-height: 1.5;}
-        .qr-box strong { color: #fff; display: block; margin-bottom: 8px; font-size: 1rem; letter-spacing: 1px;}
-        .qr-box div { background: #fff; padding: 10px; display: inline-block; margin-top: 12px; border-radius: 4px; box-shadow: 0 4px 10px rgba(0,0,0,0.5);}
+        .qr-box { text-align: center; font-size: 0.85rem; color: #94a3b8; font-weight: 400; line-height: 1.6;}
+        .qr-box strong { color: #fff; display: block; margin-bottom: 8px; font-size: 0.95rem; letter-spacing: 1px; font-weight: 600;}
+        .qr-box div { background: #fff; padding: 10px; display: inline-block; margin-top: 12px; }
 
+        /* --- CAM PANEL --- */
         #cam-panel { 
             display: none; 
             padding: 20px; 
             text-align: center; 
             height: 100vh; 
-            background: var(--dark-bg); 
-            background-image: radial-gradient(circle at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            background: var(--bg-deep); 
         }
-        .cam-status { font-weight: 600; font-size: 1.5rem; color: #9aa0a6; margin-top: 35vh; letter-spacing: 2px;}
+        .cam-status { font-weight: 400; font-size: 1.2rem; color: #94a3b8; margin-top: 35vh; letter-spacing: 2px;}
         .camera-ui { display: none; margin-top: 15vh; }
-        .driver-target { font-size: 2.5rem; font-weight: 800; color: #fff; text-transform: uppercase; line-height: 1.2; text-shadow: 0 0 15px rgba(255,255,255,0.3);}
+        .driver-target { font-size: 2rem; font-weight: 600; color: #fff; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;}
         
-        .shutter-wrapper { position: relative; margin-top: 50px; display: inline-block; width: 100%; max-width: 320px; }
+        .shutter-wrapper { position: relative; margin-top: 40px; display: inline-block; width: 100%; max-width: 300px; }
         .shutter-wrapper input { position: absolute; left: 0; top: 0; opacity: 0; height: 100%; width: 100%; cursor: pointer; z-index: 10; }
         .fake-shutter { 
-            background: rgba(0, 212, 255, 0.1); 
-            color: var(--neon-blue); 
-            padding: 35px 20px; 
-            border-radius: 8px; 
-            font-weight: 800; 
-            font-size: 1.5rem; 
-            box-shadow: inset 0 0 20px var(--neon-blue-dim), 0 0 15px var(--neon-blue-dim); 
-            border: 2px solid var(--neon-blue);
-            transition: all 0.2s;
+            background: rgba(46, 144, 232, 0.1); 
+            color: #fff; 
+            padding: 30px 20px; 
+            font-weight: 600; 
+            font-size: 1.2rem; 
+            border: 1.5px solid var(--poster-blue);
+            box-shadow: var(--poster-glow);
             letter-spacing: 1px;
+            transition: background 0.2s;
         }
-        .shutter-wrapper:active .fake-shutter { transform: scale(0.95); background: rgba(0, 212, 255, 0.3);}
+        .shutter-wrapper:active .fake-shutter { background: rgba(46, 144, 232, 0.3); }
         
         .empty-state { 
             text-align: center; 
-            padding: 60px 20px; 
-            color: #9aa0a6; 
-            font-weight: 600; 
-            font-size: 1.2rem; 
+            padding: 50px 20px; 
+            color: #94a3b8; 
+            font-weight: 400; 
+            font-size: 1rem; 
             letter-spacing: 2px;
-            background: var(--panel-bg);
-            border-radius: 4px;
-            border: 1px dashed rgba(0, 212, 255, 0.3);
             text-transform: uppercase;
+            border: 1px dashed rgba(46, 144, 232, 0.4);
+            background: rgba(0,0,0,0.5);
         }
     </style>
 </head>
 <body>
 
-    <div class="f1-header">
-        <div class="header-title">
-            THE ATOMIC <span class="highlight">SPRINT</span>
-        </div>
-        <div class="header-live">
-            <div class="live-dot"></div> LIVE TIMING
-        </div>
+    <div class="poster-header-container">
+        <div class="title-main">THE ATOMIC SPRINT</div>
+        <div class="title-sub">THE NEEDLE VS THE NET</div>
     </div>
 
     <div id="admin-panel">
-        <h3 class="admin-header">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            PIT WALL COMMAND
-        </h3>
+        <div class="section-header-wrapper">
+            <div class="section-header">PIT WALL COMMAND</div>
+        </div>
         <div class="admin-controls">
             <input type="text" id="a-name" placeholder="DRIVER NAME">
             <select id="a-team">
@@ -335,16 +348,16 @@
             <input type="number" id="a-time" step="0.1" placeholder="TIME (sec)">
             <button class="btn-glow" id="req-photo-btn">REQUEST PHOTO</button>
         </div>
-        <div id="admin-status" style="color:var(--neon-blue); margin-bottom: 15px; font-weight: 600; font-family: 'Roboto Mono';"></div>
+        <div id="admin-status" style="color:var(--poster-blue); margin-bottom: 15px; font-weight: 600; font-size: 0.9rem;"></div>
         
         <div class="qr-section">
             <div class="qr-box">
-                <strong>1. YOUR PHONE (CAMERA)</strong>
+                <strong>1. CAPTURE THE MOMENT</strong>
                 Scan to make your phone the remote.
                 <div id="qr-cam"></div>
             </div>
             <div class="qr-box">
-                <strong>2. THE CROWD (LEADERBOARD)</strong>
+                <strong>2. SCAN TO JOIN LEADERBOARD</strong>
                 Visitors scan to view and share.
                 <div id="qr-public"></div>
             </div>
@@ -354,17 +367,20 @@
     <div id="cam-panel">
         <div id="idle-text" class="cam-status">WAITING FOR LAPTOP...</div>
         <div id="active-cam-ui" class="camera-ui">
-            <div style="color:var(--neon-blue); font-weight: 600; font-size: 1rem; margin-bottom: 10px; letter-spacing: 2px;">SNAP CRYSTAL FOR</div>
+            <div style="color:var(--poster-blue); font-weight: 600; font-size: 0.9rem; letter-spacing: 2px;">SNAP CRYSTAL FOR</div>
             <div id="target-name" class="driver-target">---</div>
             <div class="shutter-wrapper">
-                <div class="fake-shutter">TAP TO SHOOT</div>
+                <div class="fake-shutter">TAKE A MACRO PHOTO</div>
                 <input type="file" id="camera-input" accept="image/*" capture="camera">
             </div>
-            <div id="upload-status" style="margin-top: 30px; color: var(--neon-blue); font-weight: 600; font-size: 1.1rem; font-family: 'Roboto Mono';"></div>
+            <div id="upload-status" style="margin-top: 30px; color: var(--poster-blue); font-weight: 600; font-size: 1rem;"></div>
         </div>
     </div>
 
     <div id="public-panel" class="leaderboard-container">
+        <div class="section-header-wrapper">
+            <div class="section-header">RACE TELEMETRY</div>
+        </div>
         <div id="leaderboard">
             <div class="empty-state">WAITING FOR FIRST RACER...</div>
         </div>
@@ -389,7 +405,6 @@
             new QRCode(document.getElementById("qr-cam"), { text: `${baseURL}?room=${room}&role=cam`, width: 120, height: 120 });
             new QRCode(document.getElementById("qr-public"), { text: `${baseURL}?room=${room}&role=public`, width: 120, height: 120 });
 
-            // LOCAL STORAGE FIX
             const savedData = localStorage.getItem(`iisc_sprint_data_${room}`);
             if (savedData) {
                 masterRacers = JSON.parse(savedData);
@@ -499,32 +514,33 @@
                 const row = document.createElement('div');
                 row.className = 'f1-row';
                 
-                // Redesigned Poster-Vibe Row with clean SVG icons
+                // Poster-Style Wireframe Box Structure
                 row.innerHTML = `
-                    <div class="f1-pos-wrapper">${index + 1}</div>
-                    <div class="${r.team}-bar"></div>
+                    <div class="f1-pos-wrapper">P${index + 1}</div>
                     <div class="f1-driver-info">
                         <div class="f1-name">${r.name}</div>
-                        <span class="f1-team">${r.team.toUpperCase()} STRATEGY</span>
+                        <span class="f1-team">
+                            <div class="team-dot ${r.team}-dot"></div> 
+                            TEAM ${r.team.toUpperCase()}
+                        </span>
                     </div>
                     <div class="f1-time-wrapper ${isFastest ? 'fastest-lap' : ''}">
-                        ${parseFloat(r.time).toFixed(3)}
+                        ${parseFloat(r.time).toFixed(3)}s
                     </div>
                     <img src="${r.photo}" class="f1-crystal" alt="Crystal Photo">
                     
                     <button class="action-btn" onclick="downloadPhoto('${r.photo}', '${r.name}', '${r.team}')" title="Save to Gallery">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                     </button>
                     
                     <button class="action-btn" onclick="shareSocial('${r.name}', '${r.time}', '${r.team}', '${r.photo}')" title="Share via App">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                     </button>
                 `;
                 board.appendChild(row);
             });
         }
 
-        // --- FORCE DOWNLOAD IMAGE TO GALLERY ---
         window.downloadPhoto = function(photoBase64, name, team) {
             const link = document.createElement('a');
             link.href = photoBase64;
@@ -534,7 +550,6 @@
             document.body.removeChild(link);
         }
 
-        // --- NATIVE SHARE (SILENT, NO POPUPS) ---
         window.shareSocial = async function(name, time, team, photoBase64) {
             const text = `🏎️💨 I just set a ${parseFloat(time).toFixed(3)}s time at the Atomic Sprint! \nDriver: ${name} \nTeam: ${team.toUpperCase()} \n#AtomicSprint #IIScOpenDay`;
             
